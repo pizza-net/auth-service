@@ -1,6 +1,7 @@
 package com.pizzanet.authservice.init;
 
 
+import com.pizzanet.authservice.model.Role;
 import com.pizzanet.authservice.model.User;
 import com.pizzanet.authservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,11 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         User admin = new User("admin", passwordEncoder.encode("admin123"));
-        User user = new User("user", passwordEncoder.encode("user123"));
+        admin.setRole(Role.ADMIN);
 
-        userRepository.saveAll(List.of(admin,user));
+        User user = new User("user", passwordEncoder.encode("user123"));
+        user.setRole(Role.USER);
+
+        userRepository.saveAll(List.of(admin, user));
     }
 }

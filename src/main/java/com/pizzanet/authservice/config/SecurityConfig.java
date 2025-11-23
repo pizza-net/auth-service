@@ -1,9 +1,10 @@
-package com.pizzanet.authservice.config;
+ package com.pizzanet.authservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,15 +17,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //zmiana
-    int i=0;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                        .requestMatchers("/users/**").authenticated()
-                        .anyRequest().permitAll()
-        ).formLogin(form ->form.permitAll());
+        http
+                .csrf(AbstractHttpConfigurer::disable) // Wyłączamy CSRF, bo nie używamy sesji/ciasteczek
+                .authorizeHttpRequests(authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers("/auth/login", "/auth/register").permitAll() // Endpointy logowania i rejestracji są publiczne
+                                .anyRequest().authenticated() // Wszystkie inne żądania wymagają uwierzytelnienia
+                );
         return http.build();
     }
 }
