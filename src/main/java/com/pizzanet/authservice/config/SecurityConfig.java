@@ -8,8 +8,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Configuration
+import java.util.List;
+
+ @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Bean
@@ -20,12 +25,57 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Wyłączamy CSRF, bo nie używamy sesji/ciasteczek
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/auth/login", "/auth/register").permitAll() // Endpointy logowania i rejestracji są publiczne
-                                .anyRequest().authenticated() // Wszystkie inne żądania wymagają uwierzytelnienia
+                                .requestMatchers("/auth/**").permitAll()
+                                .anyRequest().authenticated()
                 );
         return http.build();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Dozwolone originy (frontend)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",  // Vite dev server
+                "http://localhost:3000",  // Alternatywny port
+                "http://localhost:4173"   // Vite preview
+        ));
+
+        // Dozwolone metody HTTP
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        // Dozwolone nagłówki
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
+        ));
+
+        // Nagłówki zwracane w odpowiedzi
+        configuration.setExposedHeaders(List.of(
+                "Authorization"
+        ));
+
+        // Zezwolenie na credentials (cookies, authorization headers)
+        configuration.setAllowCredentials(true);
+
+        // Maksymalny czas cache dla preflight request
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
