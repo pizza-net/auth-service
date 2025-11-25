@@ -9,8 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -25,12 +23,19 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        User admin = new User("admin", passwordEncoder.encode("admin123"));
-        admin.setRole(Role.ADMIN);
+        // Sprawdź, czy użytkownicy już istnieją
+        if (userRepository.findByUsername("admin").isEmpty()) {
+            User admin = new User("admin", passwordEncoder.encode("admin123"));
+            admin.setRole(Role.ADMIN);
+            userRepository.save(admin);
+            System.out.println("Admin user created");
+        }
 
-        User user = new User("user", passwordEncoder.encode("user123"));
-        user.setRole(Role.USER);
-
-        userRepository.saveAll(List.of(admin, user));
+        if (userRepository.findByUsername("user").isEmpty()) {
+            User user = new User("user", passwordEncoder.encode("user123"));
+            user.setRole(Role.USER);
+            userRepository.save(user);
+            System.out.println("Regular user created");
+        }
     }
 }
