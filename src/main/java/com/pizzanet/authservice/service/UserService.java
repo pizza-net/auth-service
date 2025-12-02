@@ -1,7 +1,10 @@
 package com.pizzanet.authservice.service;
 
+import com.pizzanet.authservice.dto.RegisterRequest;
+import com.pizzanet.authservice.model.Role;
 import com.pizzanet.authservice.model.User;
 import com.pizzanet.authservice.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,4 +52,26 @@ public class UserService implements UserDetailsService {
         }
         return user;
     }
+
+    @Transactional
+    public void registerUser(RegisterRequest request) {
+        // Sprawdź czy użytkownik już istnieje
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Użytkownik o podanym loginie już istnieje");
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Użytkownik o podanym emailu już istnieje");
+        }
+
+        // Utwórz nowego użytkownika
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
+
+        userRepository.save(user);
+    }
+
 }
