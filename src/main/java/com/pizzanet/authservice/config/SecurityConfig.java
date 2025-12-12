@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/auth/**", "/auth/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 );
         return http.build();
@@ -43,7 +43,9 @@ public class SecurityConfig {
                 "http://localhost:5173",  // Vite dev server
                 "http://localhost:3000",  // Alternatywny port
                 "http://localhost:4173",   // Vite preview
-                "http://localhost:8085"
+                "http://localhost:8085",   // Frontend w Docker
+                "http://localhost:8080",   // Gateway
+                "http://gateway-service:8080"  // Gateway container
         ));
 
         // Dozwolone metody HTTP
