@@ -29,24 +29,29 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
             // Autentykacja użytkownika
-            UserDetails user = userService.authenticate(
+            UserDetails userDetails = userService.authenticate(
                     loginRequest.username(),
                     loginRequest.password()
             );
 
-            // Generowanie tokenu JWT
-            String token = jwtService.generateToken(user);
+            // Pobierz pełnego użytkownika żeby dostać rolę
+            User user = userService.findByUsername(loginRequest.username());
 
-            // Zwracanie odpowiedzi z tokenem
+            // Generowanie tokenu JWT
+            String token = jwtService.generateToken(userDetails);
+
+            // Zwracanie odpowiedzi z tokenem i rolą
             return ResponseEntity.ok(new LoginResponse(
                     token,
-                    user.getUsername(),
+                    userDetails.getUsername(),
+                    user.getRole().name(),
                     "Login successful"
             ));
         } catch (Exception e) {
             // Zwracanie błędu 401 w przypadku niepowodzenia
             return ResponseEntity.status(401).body(
                     new LoginResponse(
+                            null,
                             null,
                             null,
                             "Invalid username or password"

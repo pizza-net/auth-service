@@ -31,6 +31,17 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
+    /**
+     * Znajduje użytkownika po nazwie.
+     * @param username Nazwa użytkownika.
+     * @return Użytkownik.
+     * @throws UsernameNotFoundException Jeśli użytkownik nie istnieje.
+     */
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
