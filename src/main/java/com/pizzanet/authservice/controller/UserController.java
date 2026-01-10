@@ -43,6 +43,7 @@ public class UserController {
             // Zwracanie odpowiedzi z tokenem i rolą
             return ResponseEntity.ok(new LoginResponse(
                     token,
+                    user.getId(),
                     userDetails.getUsername(),
                     user.getRole().name(),
                     "Login successful"
@@ -51,6 +52,7 @@ public class UserController {
             // Zwracanie błędu 401 w przypadku niepowodzenia
             return ResponseEntity.status(401).body(
                     new LoginResponse(
+                            null,
                             null,
                             null,
                             null,
@@ -63,6 +65,12 @@ public class UserController {
         public ResponseEntity<List<User>> getAllUsers() {
             return ResponseEntity.ok(userService.getUsers());
         }
+
+    @GetMapping("/couriers")
+    public ResponseEntity<List<User>> getCouriers() {
+        return ResponseEntity.ok(userService.getCouriers());
+    }
+
     /**
      * Endpoint do weryfikacji tokenu (opcjonalny)
      */

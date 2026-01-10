@@ -31,6 +31,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
+    public List<User> getCouriers() {
+        return userRepository.findByRole(Role.COURIER);
+    }
+
     /**
      * Znajduje użytkownika po nazwie.
      * @param username Nazwa użytkownika.
