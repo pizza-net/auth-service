@@ -3,6 +3,7 @@ package com.pizzanet.authservice.controller;
 
 import com.pizzanet.authservice.dto.LoginRequest;
 import com.pizzanet.authservice.dto.LoginResponse;
+import com.pizzanet.authservice.dto.UpdateRoleRequest;
 import com.pizzanet.authservice.model.User;
 import com.pizzanet.authservice.service.JwtService;
 import com.pizzanet.authservice.service.UserService;
@@ -15,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://gateway-service:8080"})
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
@@ -69,6 +69,21 @@ public class UserController {
     @GetMapping("/couriers")
     public ResponseEntity<List<User>> getCouriers() {
         return ResponseEntity.ok(userService.getCouriers());
+    }
+
+    /**
+     * Endpoint do zmiany roli użytkownika (tylko dla adminów)
+     */
+    @PatchMapping("/users/{userId}/role")
+    public ResponseEntity<?> updateUserRole(
+            @PathVariable Long userId,
+            @RequestBody UpdateRoleRequest request) {
+        try {
+            User updatedUser = userService.updateUserRole(userId, request.role());
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     /**
